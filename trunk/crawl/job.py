@@ -13,7 +13,7 @@ class Job:
         self.cur_cate = None                 # 记录当前处理的url所属类别
         self.wf = None                       # 结果输出文件
         if not os.path.isdir( RAW_DOC_DIR ): # 确保输出目录存在
-            os.makedirs( dir_name )
+            os.makedirs( RAW_DOC_DIR )
     
     # 统计词w,出现n次--修正，算文档频率DF，不管出现多少次，都算1次
     def add_word(self,w,n):
@@ -49,7 +49,7 @@ class Job:
         self.write_doc( page_words ) #写doc
         return True
     
-    # 分词,统计词频
+    # 分词,统计词频,保存结果到类
     def ictclas( self,text ):
         text = text.replace('\'',' ')      # 去除单引号，以免对分词操作造成影响
         cmd = "./ictclas '%s'"  % text.encode('gbk','ignore')
@@ -91,14 +91,15 @@ class Job:
     
     #记录一个doc，格式cate word:num,word:num,... \n
     def write_doc( self,dos_str ):
-        self.wf.write( "%s %s\n" % (self.cur_cate,dos_str) )
+        self.wf.write( "%s\t%s\n" % (self.cur_cate,dos_str) )
     
     # job finish,返回汇总后的词频矩阵，str形式
     def finish(self):
         print "count document frequency in cates..."
         self.wf.close()
-        #汇总分类文档数目
+        #汇总分类文档数目 
         cate_nums = [0]*NUM_CATES
+        cates_str = ','.join( map(str,cate_nums) )
         #汇总统计词频，str化输出
         word_dfs = []
         for word in self.words.keys():
@@ -107,9 +108,8 @@ class Job:
             # 局部特征选择--去低频词
             if all_num >= TH_LOCAL_TSR:
                 cates_str = ','.join( map(str,self.words[word]) )
-                word_dfs.append( "%s %s,%d" % (word,cates_str,all_num) )
+                word_dfs.append( "%s\t%s,%d" % (word,cates_str,all_num) )
             pass
-        cates_str = ','.join( map(str,cate_nums) )
         words_str = '\n'.join( word_dfs )
         return "%s\n%s" % (cates_str,words_str)
     
@@ -134,7 +134,8 @@ class GmJob(Job):
         #extact job.arg
         urls = self.job.arg.split('\n')
         for url_cate in urls:
-            url,cate = url_cate.split()
+            if not url_cate or url_cate.find('\t')==-1:continue # 防止错误格式数据
+            url,cate = url_cate.split('\t')
             url_cates.append( (url,cate) )
             pass
         return url_cates
