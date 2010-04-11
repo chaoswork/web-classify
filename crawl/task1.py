@@ -4,7 +4,7 @@
 from gearman.task import Task
 from pysqlite2 import dbapi2 as sqlite3
 from config import *
-from uitl import *
+from util import *
 import time
 
 # 返回的result词频格式：word:cate1_num,cate2_num,...,all_num
@@ -12,8 +12,8 @@ class Task1( Task ):
     words = {}
     cates = [0]*NUM_CATES
     con = sqlite3.connect( TASK1_RESULT_DB )
-    def __init__(self,func,arg,uniq=None,timeout=None,background=False,retry_count=0):
-        Task.__init__(self,func,arg,uniq,timeout,background,retry_count)
+    def __init__(self,func,arg,uniq=None,background=False,high_priority=False,timeout=None,retry_count=0):
+        Task.__init__(self,func,arg,uniq,background,high_priority,timeout,retry_count)
     
     def complete( self,result ):
         t = time.strftime( '%Y-%m-%d %X', time.localtime() )
@@ -21,40 +21,44 @@ class Task1( Task ):
         print "[collect] result to sqlite..."
         Task1.collect_result( result )
         t = time.strftime( '%Y-%m-%d %X', time.localtime() )
-        print "[Finish]Task finished.[%s]\n" % t
+        print "[Finish]Task really finished.[%s]\n" % t
         self._finished()
 
     #存储result中一个word的各类df记录到sqlite
     @staticmethod
     def store_word_df( word,cate_nums ):
         # 判断是否该词已经存在
-        cur = con.execute("select * from word_df_tb where word='?'",word)
+        sql = "select * from %s where word='%s'" % (RAW_WORDS_TB,word)
+        cur = Task1.con.execute( sql )
         record = cur.fetchone()
         if record:      # 该词已经存在
             cate_nums = map( add,record[1:],cate_nums )  # record[0]==word
             cols = list(CATES)
-            cols.append('all')
+            cols.append('total')
             tmps = map( lambda c,v:"%s=%d" % (c,v),cols,cate_nums )
             cstr = ','.join( tmps ) 
-            sql = "update word_df_tb set %s where word='%s'" % ( cstr,word )
+            sql = "update or ignore %s set %s where word='%s'" % ( RAW_WORDS_TB,cstr,word )
         else:                   # 插入
-            cstr = ','.join( map(str,cates_nums) ) 
-            sql = 'insert into word_df_tb values(%s,%s)' % (word,cstr )
+            cstr = ','.join( map(str,cate_nums) ) 
+            sql = "insert or ignore into %s values('%s',%s)" % ( RAW_WORDS_TB,word,cstr )
             pass
+        print sql
         Task1.con.execute( sql )
         
     @staticmethod
-    def collect_result( result ):
+    def collect_result( result ):        
         lines = result.split('\n')
         # 汇总各类中的文档频率
         for line in lines:
             try:
                 word,cates_str = line.split('\t')
                 cate_nums = map( int,cates_str.split(',') )
-                Task1.store_word_df( word,cate_nums )
+                Task1.store_word_df( con,word,cate_nums )
             except ValueError:
                 print '[W]Bad word_cates num data:%s' % line
                 continue
+        Task1.con.commit()
+        #con.close()
         return True
                 
     def status( self,numerator,denominator ):
