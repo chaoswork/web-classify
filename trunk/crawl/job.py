@@ -4,6 +4,7 @@ import os
 from subprocess import Popen,PIPE,STDOUT
 from parser import Parser
 from config import *
+from util import add
 
 # 记录一个job相关的全局信息操作,抽象对象，不应该被实例化
 class Job:
@@ -98,8 +99,8 @@ class Job:
         print "count document frequency in cates..."
         self.wf.close()
         #汇总分类文档数目 
-        cate_nums = [0]*NUM_CATES
-        cates_str = ','.join( map(str,cate_nums) )
+        # cate_nums = [0]*NUM_CATES
+        # cates_str = ','.join( map(str,cate_nums) )
         #汇总统计词频，str化输出
         word_dfs = []
         for word in self.words.keys():
@@ -111,8 +112,8 @@ class Job:
                 word_dfs.append( "%s\t%s,%d" % (word,cates_str,all_num) )
             pass
         words_str = '\n'.join( word_dfs )
-        return "%s\n%s" % (cates_str,words_str)
-    
+        #return "%s\n%s" % (cates_str,words_str)
+        return words_str
     
 # job record for Gearman:从client获取参数
 class GmJob(Job):
