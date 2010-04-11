@@ -13,7 +13,7 @@ class Job:
         self.fingers = []                    # doc指纹
         self.cur_cate = None                 # 记录当前处理的url所属类别
         self.wf = None                       # 结果输出文件
-        if not os.path.isdir( RAW_DOC_DIR ): # 确保输出目录存在
+        if not os.path.exists( RAW_DOC_DIR ): # 确保输出目录存在
             os.makedirs( RAW_DOC_DIR )
     
     # 统计词w,出现n次--修正，算文档频率DF，不管出现多少次，都算1次
@@ -98,13 +98,9 @@ class Job:
     def finish(self):
         print "count document frequency in cates..."
         self.wf.close()
-        #汇总分类文档数目 
-        # cate_nums = [0]*NUM_CATES
-        # cates_str = ','.join( map(str,cate_nums) )
         #汇总统计词频，str化输出
         word_dfs = []
         for word in self.words.keys():
-            cate_nums = map( add,cate_nums,self.words[word] )
             all_num = sum( self.words[word] )
             # 局部特征选择--去低频词
             if all_num >= TH_LOCAL_TSR:

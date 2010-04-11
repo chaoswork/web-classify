@@ -15,7 +15,7 @@ def preprocess_gm( job ):
         result = myjob.finish()
     except Exception,e:
         print e
-        result = ''
+        exit(1)
     print 'worker finished job:%s' % job.handle
     print '-'*80
     return result 

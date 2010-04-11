@@ -4,8 +4,8 @@ from pysqlite2 import dbapi2 as sqlite3
 from gearman import GearmanClient
 from gearman.task import Taskset
 from task1 import Task1
-from uitl import *
-import time,os
+from util import *
+import time
 from config import *
 
 chi_fun = lambda tc,t,c,n:float((tc*n-c*t)**2)/(t*(n-t)*c*(n-c))
@@ -45,12 +45,12 @@ if __name__ == '__main__':
     print "0.initialize database for results."   
     tmps = [ "%s int" % cate for cate in CATES]
     cates_str = ','.join( tmps )
-    tb_sql = "create table df_word_tb(word text,%s,all int);" % cates_str
+    tb_sql = "create table %s (word text primary key,%s,total int);" % (RAW_WORDS_TB,cates_str)
     print tb_sql
     init_db( TASK1_RESULT_DB,tb_sql ) 
     # 1.run the tasks in parallel
     print "1.Preprocess tasks:"   
-    client.do_taskset( tasks )    
+    client.do_taskset( tasks )
     # 全局开方特征选择--以下是单机版程序
     #print "2.TSR by chi:"
     #tsr_chi()
