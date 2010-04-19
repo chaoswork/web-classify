@@ -1,12 +1,13 @@
 #coding=utf8
 # config.py 一些配置信息
 
-RAW_DOC_DIR = 'pages'           # 爬取、分词以及局部低频词过滤后的网页存放目录
+### COMMAN
 CATES =  ('book','edu','finance','house','mil','sport','car','ent','game','lady','mobile','tech')
-
 NUM_CATES = len( CATES )
 
-#TASK
+### CLIENT
+URLS_DB = 'urls.db'
+# task
 TASK1_TIMEOUT = 600              # 第一个任务的单个执行期限是600s
 # threshold
 TRAIN_URLS = 2000               # 每个类用来训练的url数目,-1为所有的
@@ -20,6 +21,8 @@ RAW_WORDS_TB = 'df_word_tb'
 CHI_DB = '../db/chi.db'
 CHI_TB = 'chi_tb'
 
+#### WORKER
+RAW_DOC_DIR = 'pages'           # 爬取、分词以及局部低频词过滤后的网页存放目录
 
 # data format,主要分割符:\t , :。由于有的词中含有':',当使用':'时，需要先去除这些词
 # 1.url_cate:from client to worker as job.arg

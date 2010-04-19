@@ -24,7 +24,7 @@ def get_urls( db ):
     return urls
 
 if __name__ == '__main__':
-    urls = get_urls( 'urls.db' )
+    urls = get_urls( URLS_DB )
     
     client = GearmanClient( ['10.61.0.145'] )
     tasks = Taskset()
