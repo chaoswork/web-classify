@@ -11,7 +11,6 @@ import time
 class Task1( Task ):
     words = {}
     cates = [0]*NUM_CATES
-    con = sqlite3.connect( TASK1_RESULT_DB )
     def __init__(self,func,arg,uniq=None,background=False,high_priority=False,timeout=None,retry_count=0):
         Task.__init__(self,func,arg,uniq,background,high_priority,timeout,retry_count)
     
@@ -26,10 +25,10 @@ class Task1( Task ):
 
     #存储result中一个word的各类df记录到sqlite
     @staticmethod
-    def store_word_df( word,cate_nums ):
+    def store_word_df( con,word,cate_nums ):
         # 判断是否该词已经存在
         sql = "select * from %s where word='%s'" % (RAW_WORDS_TB,word)
-        cur = Task1.con.execute( sql )
+        cur = con.execute( sql )
         record = cur.fetchone()
         if record:      # 该词已经存在
             cate_nums = map( add,record[1:],cate_nums )  # record[0]==word
@@ -42,11 +41,12 @@ class Task1( Task ):
             cstr = ','.join( map(str,cate_nums) ) 
             sql = "insert or ignore into %s values('%s',%s)" % ( RAW_WORDS_TB,word,cstr )
             pass
-        print sql
-        Task1.con.execute( sql )
+        #print sql
+        con.execute( sql )
         
     @staticmethod
     def collect_result( result ):        
+        con = sqlite3.connect( TASK1_RESULT_DB )
         lines = result.split('\n')
         # 汇总各类中的文档频率
         for line in lines:
@@ -57,8 +57,8 @@ class Task1( Task ):
             except ValueError:
                 print '[W]Bad word_cates num data:%s' % line
                 continue
-        Task1.con.commit()
-        #con.close()
+        con.commit()
+        con.close()
         return True
                 
     def status( self,numerator,denominator ):
