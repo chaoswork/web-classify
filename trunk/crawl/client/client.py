@@ -6,7 +6,7 @@ from gearman.task import Taskset
 from task1 import Task1
 from util import *
 import time
-from config import *
+from dknn.config import *
 
 chi_fun = lambda tc,t,c,n:float((tc*n-c*t)**2)/(t*(n-t)*c*(n-c))
 

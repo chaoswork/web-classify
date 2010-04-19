@@ -1,5 +1,5 @@
 #/bin/bash
-fs='client.py worker.py config.py task1.py parser.py job.py util.py'
+fs='client/client.py worker/worker.py config.py client/task1.py worker/parser.py worker/job.py util.py'
 hosts='gm141 gm145'
 dirname=/home/gm/text-classify/crawl
 
