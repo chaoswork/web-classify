@@ -9,15 +9,15 @@ NUM_CATES = len( CATES )
 #TASK
 TASK1_TIMEOUT = 600              # 第一个任务的单个执行期限是600s
 # threshold
-TRAIN_URLS = 500               # 每个类用来训练的url数目,-1为所有的
+TRAIN_URLS = 2000               # 每个类用来训练的url数目,-1为所有的
 TH_LOCAL_TSR = 1                # 局部特征选择时的最低词频
 TH_GLOBAL_TSR = 2               # 全局去低频词中所保留的最低词频
 TOP_CHI = 10000                 # 全局开方特征选择的词数
 
 #file
-TASK1_RESULT_DB = 'db/task1_result.db' # 存储第一个task的返回结果，即词的各类df
+TASK1_RESULT_DB = '../db/task1_result.db' # 存储第一个task的返回结果，即词的各类df
 RAW_WORDS_TB = 'df_word_tb'
-CHI_DB = 'db/chi.db'
+CHI_DB = '../db/chi.db'
 CHI_TB = 'chi_tb'
 
 
