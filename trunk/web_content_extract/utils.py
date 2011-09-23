@@ -5,34 +5,22 @@ from math import sqrt
 stop_words = ['i', 'a', 'about','and', 'an', 'are', 'as', 'at', 'be', 'by', 'com', 'de', 'en', 'for', 'from', 'how', 'in', 'is', 'it', 'la', 'of', 'on', 'or', 'that', 'the', 'this', 'to', 'was', 'what', 'when', 'where', 'who', 'will', 'with', 'und', 'the', 'www']
 #stop_words = [unicode(w) for w in stop_words]
 
-# 独门title分词：中文二分，英文词分
+# 2-gram Chinese words segment, keep Connected English letters as a word
+# return:
+#      words [w1,w2,...]
 def title_split( title ):
-    words = []
-    #items = re.split('[-_—]',title)
-
-    #title = items[0]
-    wds = re.split('[\s\']+',title)
-  
-    for wd in wds:
-        #如果是英文，不处理
-        if re.match('^(\w)+$',wd ) and wd.lower() not in stop_words:
-            words.append(wd)
-        # 带中文的串
-        elif len(wd)>2:
-            # 中文分词，两个字一个词，unicode
-            temp = ''
-            for i in range( len(wd)-1 ):
-                if re.match('\w',wd[i]):
-                    # 夹在中文中的英文
-                    temp +=str(wd[i])
-                else:
-                    if temp and temp not in stop_words:
-                        words.append(temp)
-                        temp = ''
-                    words.append(wd[i:i+2])
-        else:
-            words.append(wd)
-    return words
+    if isinstance(title, str):
+        title = title.decode('utf8')
+        
+    stop_words = ['http','www']
+    # split
+    regex = re.compile(ur"(?x) (?: [\w-]{2,} | [\u4e00-\u9fa5]{2} )")
+    wds = regex.findall(title)
+    
+    # filter stop words
+    wds = [w for w in wds if w not in stop_words]
+    
+    return wds
 
 #html特殊字符转换
 def html_char_transform( s ):
